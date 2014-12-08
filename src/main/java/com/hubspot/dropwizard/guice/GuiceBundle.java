@@ -120,6 +120,7 @@ public class GuiceBundle<T extends Configuration> implements ConfiguredBundle<T>
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void run(final T configuration, final Environment environment) {
         container.setResourceConfig(environment.jersey().getResourceConfig());
@@ -130,9 +131,20 @@ public class GuiceBundle<T extends Configuration> implements ConfiguredBundle<T>
                 return container;
             }
         });
-        environment.servlets().addFilter("Guice Filter", GuiceFilter.class)
-                .addMappingForUrlPatterns(null, false, environment.getApplicationContext().getContextPath() + "*");
+        environment
+                .servlets()
+                .addFilter("Guice Filter", GuiceFilter.class)
+                .addMappingForUrlPatterns(null, false,
+                        environment.getApplicationContext().getContextPath() + "*");
         setEnvironment(configuration, environment);
+        
+        // setEnvironment
+        // Note - this will not be effective for modules that is not added to GuiceBundle.
+        for (Module m : this.modules) {
+            if (m instanceof DropwizardAwareModule) {
+                ((DropwizardAwareModule) m).setEnvironmentData(configuration, environment);
+            }
+        }
 
         if (autoConfig != null) {
             autoConfig.run(environment, injector);
@@ -147,4 +159,10 @@ public class GuiceBundle<T extends Configuration> implements ConfiguredBundle<T>
     public Injector getInjector() {
         return injector;
     }
+    
+    // Very risky - but we need a mechanism to create and assign child injectors.
+    protected void setInjector(Injector injector) {
+        this.injector = injector;
+    }
+
 }

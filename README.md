@@ -8,11 +8,19 @@ the dropwizard environment upon service start.
 ### Usage
 
 ```xml
+	<repository>
+		<id>git-47billion</id>
+		<name>47billion's Git based repo</name>
+		<url>https://github.com/47billion/maven-repo/raw/master/</url>
+	</repository>
+```
+
+```xml
     <dependencies>
         <dependency>
             <groupId>com.hubspot.dropwizard</groupId>
             <artifactId>dropwizard-guice</artifactId>
-            <version>0.7.0.2</version>
+            <version>0.7.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 ```
